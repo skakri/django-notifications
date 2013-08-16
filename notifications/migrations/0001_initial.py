@@ -4,6 +4,11 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+try:
+    from django.conf import settings
+    AUTH_USER_MODEL = settings.AUTH_USER_MODEL
+except AttributeError:
+    AUTH_USER_MODEL = 'auth.User'
 
 class Migration(SchemaMigration):
 
@@ -11,7 +16,7 @@ class Migration(SchemaMigration):
         # Adding model 'Notification'
         db.create_table('notifications_notification', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('recipient', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notifications', to=orm['auth.User'])),
+            ('recipient', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notifications', to=orm[AUTH_USER_MODEL])),
             ('readed', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('actor_content_type', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notify_actor', to=orm['contenttypes.ContentType'])),
             ('actor_object_id', self.gf('django.db.models.fields.CharField')(max_length=255)),
@@ -46,8 +51,8 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
+        AUTH_USER_MODEL: {
+            'Meta': {'object_name': AUTH_USER_MODEL.split('.')[-1]},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
@@ -79,7 +84,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'public': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'readed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'recipient': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'notifications'", 'to': "orm['auth.User']"}),
+            'recipient': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'notifications'", 'to': "orm['%s']" % AUTH_USER_MODEL}),
             'target_content_type': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'notify_target'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'target_object_id': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
